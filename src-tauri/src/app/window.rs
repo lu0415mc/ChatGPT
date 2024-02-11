@@ -2,8 +2,6 @@ use crate::{
   conf::AppConf,
   utils::{self, load_script},
 };
-use log::info;
-use std::time::SystemTime;
 use tauri::{utils::config::WindowUrl, window::WindowBuilder, Manager};
 
 pub fn tray_window(handle: &tauri::AppHandle) {
@@ -35,63 +33,10 @@ pub fn tray_window(handle: &tauri::AppHandle) {
         .initialization_script(include_str!("../vendors/floating-ui-dom.js"))
         .initialization_script(&load_script("cmd.js"))
         .initialization_script(&load_script("chat.js"))
-        .initialization_script(&load_script("popup.core.js"))
     }
 
     tray_win.build().unwrap().hide().unwrap();
   });
-}
-
-pub fn dalle2_window(
-  handle: &tauri::AppHandle,
-  query: Option<String>,
-  title: Option<String>,
-  is_new: Option<bool>,
-) {
-  info!("dalle2_query: {:?}", query);
-  let theme = AppConf::theme_mode();
-  let app = handle.clone();
-
-  let query = if query.is_some() {
-    format!("window.addEventListener('DOMContentLoaded', function() {{\nwindow.__CHATGPT_QUERY__='{}';\n}})", query.unwrap())
-  } else {
-    "".to_string()
-  };
-
-  let label = if is_new.unwrap_or(true) {
-    let timestamp = SystemTime::now()
-      .duration_since(SystemTime::UNIX_EPOCH)
-      .unwrap()
-      .as_secs();
-    format!("dalle2_{}", timestamp)
-  } else {
-    "dalle2".to_string()
-  };
-
-  if app.get_window("dalle2").is_none() {
-    tauri::async_runtime::spawn(async move {
-      WindowBuilder::new(
-        &app,
-        label,
-        WindowUrl::App("https://labs.openai.com".into()),
-      )
-      .title(title.unwrap_or_else(|| "DALL·E 2".to_string()))
-      .resizable(true)
-      .fullscreen(false)
-      .inner_size(800.0, 600.0)
-      .always_on_top(false)
-      .theme(Some(theme))
-      .initialization_script(&load_script("core.js"))
-      .initialization_script(&load_script("dalle2.js"))
-      .initialization_script(&query)
-      .build()
-      .unwrap();
-    });
-  } else {
-    let dalle2_win = app.get_window("dalle2").unwrap();
-    dalle2_win.show().unwrap();
-    dalle2_win.set_focus().unwrap();
-  }
 }
 
 pub fn sponsor_window(handle: tauri::AppHandle) {
@@ -115,16 +60,6 @@ pub mod cmd {
   use super::*;
   use log::info;
   use tauri::{command, utils::config::WindowUrl, window::WindowBuilder, Manager};
-
-  #[tauri::command]
-  pub fn dalle2_search_window(app: tauri::AppHandle, query: String) {
-    dalle2_window(
-      &app.app_handle(),
-      Some(query),
-      Some("ChatGPT & DALL·E 2".to_string()),
-      None,
-    );
-  }
 
   #[tauri::command]
   pub fn control_window(handle: tauri::AppHandle, win_type: String) {

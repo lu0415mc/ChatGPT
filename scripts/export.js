@@ -152,15 +152,15 @@ async function exportInit() {
         img.setAttribute('srcset', '');
       });
 
-      const chatImagePromises = this.chatImages.map(async (img) => {
-        const src = img.getAttribute('src');
-        if (!/^http/.test(src)) return;
-        if (['fileserviceuploadsperm.blob.core.windows.net'].includes(new URL(src)?.host)) return;
-        const data = await invoke('fetch_image', { url: src });
-        const blob = new Blob([new Uint8Array(data)], { type: 'image/png' });
-        img.src = URL.createObjectURL(blob);
-      });
-      await Promise.all(chatImagePromises);
+      // const chatImagePromises = this.chatImages.map(async (img) => {
+      //   const src = img.getAttribute('src');
+      //   if (!/^http/.test(src)) return;
+      //   if (['fileserviceuploadsperm.blob.core.windows.net'].includes(new URL(src)?.host)) return;
+      //   const data = await invoke('fetch_image', { url: src });
+      //   const blob = new Blob([new Uint8Array(data)], { type: 'image/png' });
+      //   img.src = URL.createObjectURL(blob);
+      // });
+      // await Promise.all(chatImagePromises);
       document.body.style.lineHeight = '0.5';
     }
     async restoreLocation() {

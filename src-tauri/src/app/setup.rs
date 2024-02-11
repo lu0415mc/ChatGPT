@@ -95,7 +95,6 @@ pub fn init(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
           .initialization_script(include_str!("../vendors/jspdf.js"))
           .initialization_script(include_str!("../vendors/turndown.js"))
           .initialization_script(include_str!("../vendors/turndown-plugin-gfm.js"))
-          .initialization_script(&load_script("popup.core.js"))
           .initialization_script(&load_script("export.js"))
           .initialization_script(&load_script("markdown.export.js"))
           .initialization_script(&load_script("cmd.js"))

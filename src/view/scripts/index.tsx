@@ -8,16 +8,7 @@ import { TABLE_PAGINATION } from '@/hooks/useTable';
 import { scriptRoot } from '@/utils';
 import { scriptColumns } from './config';
 
-const SCRIPTS = [
-  'main.js',
-  'core.js',
-  'chat.js',
-  'cmd.js',
-  'dalle2.js',
-  'export.js',
-  'markdown.export.js',
-  'popup.core.js',
-];
+const SCRIPTS = ['main.js', 'core.js', 'chat.js', 'cmd.js', 'export.js', 'markdown.export.js'];
 
 export default function Scripts() {
   const [scriptsMap, setScriptsMap] = useState({});

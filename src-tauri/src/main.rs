@@ -81,7 +81,6 @@ async fn main() {
       window::cmd::wa_window,
       window::cmd::control_window,
       window::cmd::window_reload,
-      window::cmd::dalle2_search_window,
     ])
     .setup(setup::init)
     .menu(menu::init());

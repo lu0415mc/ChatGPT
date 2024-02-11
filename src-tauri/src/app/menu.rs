@@ -50,13 +50,6 @@ pub fn init() -> Menu {
   let update_silent = CustomMenuItem::new("update_silent", "Silent");
   // let _update_disable = CustomMenuItem::new("update_disable", "Disable");
 
-  let popup_search = CustomMenuItem::new("popup_search", "Pop-up Search");
-  let popup_search_menu = if app_conf.popup_search {
-    popup_search.selected()
-  } else {
-    popup_search
-  };
-
   #[cfg(target_os = "macos")]
   let titlebar = CustomMenuItem::new("titlebar", "Titlebar").accelerator("CmdOrCtrl+B");
   #[cfg(target_os = "macos")]
@@ -134,7 +127,6 @@ pub fn init() -> Menu {
       )
       .into(),
       MenuItem::Separator.into(),
-      popup_search_menu.into(),
       CustomMenuItem::new("sync_prompts", "Sync Prompts").into(),
       MenuItem::Separator.into(),
       CustomMenuItem::new("go_conf", "Go to Config")
@@ -188,7 +180,6 @@ pub fn init() -> Menu {
     "Window",
     Menu::new()
       .add_item(CustomMenuItem::new("app_website", "ChatGPT User's Guide"))
-      .add_item(CustomMenuItem::new("dalle2", "DALL·E 2"))
       .add_native_item(MenuItem::Separator)
       .add_native_item(MenuItem::Minimize)
       .add_native_item(MenuItem::Zoom),
@@ -255,19 +246,6 @@ pub fn menu_handler(event: WindowMenuEvent<tauri::Wry>) {
       None,
     ),
     "sponsor" => window::sponsor_window(app),
-    "popup_search" => {
-      let app_conf = AppConf::read();
-      let popup_search = !app_conf.popup_search;
-      menu_handle
-        .get_item(menu_id)
-        .set_selected(popup_search)
-        .unwrap();
-      app_conf
-        .amend(serde_json::json!({ "popup_search": popup_search }))
-        .write();
-      window::cmd::window_reload(app.clone(), "core");
-      window::cmd::window_reload(app, "tray");
-    }
     "sync_prompts" => {
       tauri::api::dialog::ask(
         app.get_window("core").as_ref(),
@@ -361,8 +339,6 @@ pub fn menu_handler(event: WindowMenuEvent<tauri::Wry>) {
         .amend(serde_json::json!({ "stay_on_top": stay_on_top }))
         .write();
     }
-    // Window
-    "dalle2" => window::dalle2_window(&app, None, None, Some(false)),
     // View
     "zoom_0" => win.eval("window.__zoom0 && window.__zoom0()").unwrap(),
     "zoom_out" => win.eval("window.__zoomOut && window.__zoomOut()").unwrap(),
@@ -436,6 +412,12 @@ pub fn tray_handler(handle: &AppHandle, event: SystemTrayEvent) {
 
   let app = handle.clone();
 
+  app
+    .get_window("tray")
+    .unwrap()
+    .move_window(Position::TrayCenter)
+    .unwrap();
+
   match event {
     SystemTrayEvent::LeftClick { .. } => {
       let app_conf = AppConf::read();
@@ -447,8 +429,6 @@ pub fn tray_handler(handle: &AppHandle, event: SystemTrayEvent) {
       }
 
       if let Some(tray_win) = handle.get_window("tray") {
-        tray_win.move_window(Position::TrayFixedCenter).unwrap();
-
         if tray_win.is_visible().unwrap() {
           tray_win.hide().unwrap();
         } else {

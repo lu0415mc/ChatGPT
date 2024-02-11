@@ -180,9 +180,10 @@ sudo xattr -r -d com.apple.quarantine /YOUR_PATH/ChatGPT.app
 
 ## 👀 预览
 
-<img width="320" src="./assets/install.png" alt="install"> <img width="320" src="./assets/chatgpt-control-center-general.png" alt="control center">
-<img width="320" src="./assets/chatgpt-export.png" alt="export"> <img width="320" src="./assets/chatgpt-dalle2-tray.png" alt="dalle2 tray">
-<img width="320" src="./assets/auto-update.png" alt="auto update">
+| 预览                                           | 预览                                                           |
+| ---------------------------------------------- | -------------------------------------------------------------- |
+| ![install](./assets/install.png)               | ![control center](./assets/chatgpt-control-center-general.png) |
+| ![chatgpt export](./assets/chatgpt-export.png) | ![auto update](./assets/auto-update.png)                       |
 
 ## ❓ 常见问题
 
