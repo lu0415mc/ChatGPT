@@ -2,15 +2,15 @@ import { StrictMode, Suspense } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import ReactDOM from 'react-dom/client';
 
-import Layout from '@/layout';
-import './main.scss';
+import Routes from './routes';
+import './base.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
-    <Suspense fallback={null}>
-      <BrowserRouter>
-        <Layout />
-      </BrowserRouter>
-    </Suspense>
-  </StrictMode>,
+    <BrowserRouter>
+      <Suspense fallback={null}>
+        <Routes />
+      </Suspense>
+    </BrowserRouter>
+  </StrictMode>
 );

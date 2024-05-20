@@ -1,9 +1,11 @@
 [workspace]
+resolver = "2"
 members = ["src-tauri"]
 
-# fix: mac v1.2.0 can not copy/paste
-# https://github.com/tauri-apps/tauri/issues/5669
+# https://v2.tauri.app/test/webdriver/example/#adding-tauri-to-the-cargo-project
 [profile.release]
-strip = true
-lto = true
+incremental = false
+codegen-units = 1
+panic = "abort"
 opt-level = "s"
+lto = true
