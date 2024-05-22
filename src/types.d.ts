@@ -3,6 +3,7 @@ declare namespace I {
     theme: 'light' | 'dark' | 'system';
     stay_on_top: boolean;
     ask_mode: boolean;
+    mac_titlebar_hidden: boolean;
   }
 
   export interface SVG extends React.SVGProps<SVGSVGElement> {

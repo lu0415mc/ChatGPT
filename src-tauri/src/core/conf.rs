@@ -14,6 +14,7 @@ pub struct AppConf {
     pub theme: String,
     pub stay_on_top: bool,
     pub ask_mode: bool,
+    pub mac_titlebar_hidden: bool,
 }
 
 impl AppConf {
@@ -22,6 +23,10 @@ impl AppConf {
             theme: "system".to_string(),
             stay_on_top: false,
             ask_mode: false,
+            #[cfg(target_os = "macos")]
+            mac_titlebar_hidden: true,
+            #[cfg(not(target_os = "macos"))]
+            mac_titlebar_hidden: false,
         }
     }
 
@@ -60,8 +65,18 @@ impl AppConf {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
-        let config = serde_json::from_str(&contents)?;
-        Ok(config)
+        let config: Result<AppConf, _> = serde_json::from_str(&contents);
+
+        // Handle conditional fields and fallback to defaults if necessary
+        if let Err(e) = &config {
+            error!("[conf::load] {}", e);
+            let mut default_config = Self::new();
+            default_config = default_config.amend(serde_json::from_str(&contents)?)?;
+            default_config.save(app)?;
+            return Ok(default_config);
+        }
+
+        Ok(config?)
     }
 
     pub fn save(&self, app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
@@ -89,7 +104,7 @@ impl AppConf {
 
         let config_str = serde_json::to_string_pretty(&config)?;
         serde_json::from_str::<AppConf>(&config_str).map_err(|err| {
-            error!("conf_amend_parse: {}", err);
+            error!("[conf::amend] {}", err);
             err
         })
     }

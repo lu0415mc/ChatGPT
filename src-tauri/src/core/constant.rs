@@ -7,7 +7,7 @@ window.addEventListener('DOMContentLoaded', function() {
         const url = window.location.href;
         if (url !== 'about:blank') {
             console.log('URL changed:', url);
-            window.__TAURI__.webviewWindow.WebviewWindow.getByLabel('titlebar').emit('change:url', { url });
+            window.__TAURI__.webviewWindow.WebviewWindow.getByLabel('titlebar').emit('navigation:change', { url });
         }
     }
 

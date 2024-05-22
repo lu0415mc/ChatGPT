@@ -5,10 +5,8 @@ import { open } from '@tauri-apps/plugin-shell';
 import { debounce } from 'lodash';
 import clsx from 'clsx';
 
-import WinTitlebar from '~components/WinTitlebar';
 import useInfo from '~hooks/useInfo';
 import ReloadIcon from '~icons/Reload';
-import ArrowLeftIcon from '~icons/ArrowLeft';
 import PinIcon from '~icons/Pin';
 import UnPinIcon from '~icons/UnPin';
 import LinkIcon from '~icons/Link';
@@ -16,17 +14,19 @@ import AskIcon from '~icons/Ask';
 import ThemeSystem from '~icons/ThemeSystem';
 import ThemeLight from '~icons/ThemeLight';
 import ThemeDark from '~icons/ThemeDark';
-
-const titlebarHidden = false;
+// import ArrowLeftIcon from '~icons/ArrowLeft';
 
 export default function Titlebar() {
   const info = useInfo();
   const [url, setUrl] = useState('');
   const [hostname, setHostname] = useState('');
-  const [enableAsk, setEnableAsk] = useState(false);
-  const [pin, setPin] = useState(false);
   const [theme, setTheme] = useState('system');
+  const [enableAsk, setEnableAsk] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
+  const [isPin, setPin] = useState(false);
+  const [isTitlebarHidden, setTitlebarHidden] = useState(false);
+
+  const titlebarHidden = info.isMac && isTitlebarHidden;
 
   useEffect(() => {
     const win = getCurrent();
@@ -38,6 +38,7 @@ export default function Titlebar() {
         setEnableAsk(v.ask_mode);
         setPin(v.stay_on_top);
         setTheme(v.theme);
+        setTitlebarHidden(v.mac_titlebar_hidden);
       });
 
     (async () => {
@@ -48,7 +49,7 @@ export default function Titlebar() {
         setFullScreen(full);
       }, 50))
 
-      changeUrl = await getCurrent().listen('change:url', (event: any) => {
+      changeUrl = await getCurrent().listen('navigation:change', (event: any) => {
         const { url } = event.payload;
         setUrl(url);
 
@@ -71,13 +72,13 @@ export default function Titlebar() {
     invoke('view_reload');
   };
 
-  const handleGoForward = () => {
-    invoke('view_go_forward');
-  };
+  // const handleGoForward = () => {
+  //   invoke('view_go_forward');
+  // };
 
-  const handleGoBack = () => {
-    invoke('view_go_back');
-  };
+  // const handleGoBack = () => {
+  //   invoke('view_go_back');
+  // };
 
   const handlePin = (isPin: boolean) => {
     setPin(isPin);
@@ -117,12 +118,12 @@ export default function Titlebar() {
         'flex': !titlebarHidden,
       })}>
         {themeIcon}
-        {pin
+        {isPin
           ? <PinIcon action onClick={() => handlePin(false)} />
           : <UnPinIcon action onClick={() => handlePin(true)} />}
       </div>
     )
-  }, [titlebarHidden, themeIcon, pin])
+  }, [titlebarHidden, themeIcon, isPin])
 
   return (
     <div data-tauri-drag-region className={clsx('flex group pr-2 h-full cursor-default select-none dark:bg-app-gray-2 justify-between', {
@@ -131,19 +132,27 @@ export default function Titlebar() {
     })}>
       <div data-tauri-drag-region className={clsx('items-center gap-0.5', {
         'hidden tablet:group-hover:flex group-hover:hidden': titlebarHidden,
-        'flex': !titlebarHidden,
+        'tablet:flex hidden': !titlebarHidden,
       })}>
-        {!info.isMac && <span className="mr-4">{renderSettings}</span>}
-        <span
-          className="flex items-center bg-slate-300/50 dark:bg-slate-100/10 dark:text-gray-500 rounded-full pl-[4px] pr-[8px] h-[14px] text-[10px] gap-1 text-slate-700 mr-1"
-          onClick={handleOpenUrl}
-          title={url}
-        >
-          <LinkIcon size={14} />
-          {hostname}
-        </span>
-        <ArrowLeftIcon action onClick={handleGoBack} />
-        <ArrowLeftIcon className="rotate-180" action onClick={handleGoForward} />
+        {hostname && (
+          <span
+            className="flex items-center bg-slate-300/50 dark:bg-slate-100/10 dark:text-gray-500 rounded-full pl-[4px] pr-[8px] h-[14px] text-[10px] gap-1 text-slate-700 mr-1"
+            onClick={handleOpenUrl}
+            title={url}
+          >
+            <LinkIcon size={14} />
+            {hostname}
+          </span>
+        )}
+        {/* <ArrowLeftIcon
+          action
+          onClick={handleGoBack}
+        />
+        <ArrowLeftIcon
+          action
+          onClick={handleGoForward}
+          className="rotate-180"
+        /> */}
         <ReloadIcon action onClick={handleRefresh} />
         <AskIcon
           action
@@ -153,8 +162,11 @@ export default function Titlebar() {
           })}
         />
       </div>
-      {titlebarHidden && <div className="tablet:group-hover:flex" />}
-      {info.isMac ? renderSettings : <WinTitlebar />}
+      <div className={clsx({
+        'hidden group-hover:flex': titlebarHidden,
+        'flex': !titlebarHidden,
+      })} />
+      {renderSettings}
     </div>
   );
 }
